@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emanuel González — CV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1117;
+    --panel:#0f1420;
+    --sidebar:#0a0e16;
+    --border:#222b3a;
+    --text:#c9d1d9;
+    --muted:#7d8590;
+    --accent:#7ee787;
+    --accent-dim:#3fb950;
+    --blue:#58a6ff;
+    --amber:#d29922;
+    --pink:#f78fb3;
+    --tab-active:#0d1117;
+    --mono:'JetBrains Mono', monospace;
+    --sans:'Inter', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    height:100%;
+    overflow-x:hidden;
+  }
+  body{
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+  }
+
+  /* ===== Top window bar ===== */
+  .winbar{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 16px;
+    background:#161b22;
+    border-bottom:1px solid var(--border);
+    flex-shrink:0;
+  }
+  .dots{display:flex; gap:7px;}
+  .dot{width:11px; height:11px; border-radius:50%;}
+  .dot.r{background:#ff5f56;}
+  .dot.y{background:#ffbd2e;}
+  .dot.g{background:#27c93f;}
+  .winbar .filename{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--muted);
+    margin-left:6px;
+  }
+  .winbar .right{
+    margin-left:auto;
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--accent-dim);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .pulse{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--accent);
+    animation:pulse 2s infinite;
+  }
+  @keyframes pulse{
+    0%,100%{opacity:1;}
+    50%{opacity:.3;}
+  }
+
+  /* ===== Layout ===== */
+  .workspace{
+    display:flex;
+    flex:1;
+    min-height:0;
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar{
+    width:260px;
+    flex-shrink:0;
+    background:var(--sidebar);
+    border-right:1px solid var(--border);
+    padding:18px 0;
+    overflow-y:auto;
+  }
+  .sidebar-header{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.08em;
+    color:var(--muted);
+    padding:0 18px 12px;
+    text-transform:uppercase;
+  }
+  .tree-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:7px 18px 7px 18px;
+    font-size:13.5px;
+    cursor:pointer;
+    color:var(--text);
+    user-select:none;
+    border-left:2px solid transparent;
+    white-space:nowrap;
+  }
+  .tree-item:hover{background:#11182a;}
+  .tree-item.active{
+    background:#131b2e;
+    border-left:2px solid var(--accent);
+    color:var(--accent);
+  }
+  .tree-item.folder{color:var(--blue); font-weight:500;}
+  .tree-children{padding-left:16px;}
+  .icon{
+    width:14px;height:14px;flex-shrink:0;
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+  .chev{
+    width:10px;height:10px;flex-shrink:0;
+    transition:transform .15s;
+    color:var(--muted);
+  }
+  .chev.open{transform:rotate(90deg);}
+  .folder-row{display:flex; align-items:center; gap:6px; cursor:pointer; padding:7px 18px;}
+  .folder-row:hover{background:#11182a;}
+  .ext{color:var(--muted); font-size:11px; margin-left:auto;}
+
+  /* ===== Main editor area ===== */
+  .editor{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+    background:var(--bg);
+  }
+  .tabbar{
+    display:flex;
+    background:#0a0e16;
+    border-bottom:1px solid var(--border);
+    overflow-x:auto;
+    flex-shrink:0;
+  }
+  .tab{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 14px;
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--muted);
+    border-right:1px solid var(--border);
+    cursor:pointer;
+    white-space:nowrap;
+    background:transparent;
+  }
+  .tab.active{
+    background:var(--tab-active);
+    color:var(--text);
+    border-top:2px solid var(--accent);
+    margin-top:-1px;
+  }
+  .tab .close{
+    margin-left:4px;
+    opacity:.5;
+    font-size:14px;
+    line-height:1;
+  }
+  .tab .close:hover{opacity:1; color:#ff5f56;}
+
+  .content{
+    flex:1;
+    overflow-y:auto;
+    padding:32px 40px 60px;
+  }
+  .content::-webkit-scrollbar{width:10px;}
+  .content::-webkit-scrollbar-thumb{background:#222b3a; border-radius:6px;}
+
+  .lead-line{
+    font-family:var(--mono);
+    color:var(--muted);
+    font-size:12.5px;
+    margin-bottom:18px;
+  }
+  .lead-line .n{color:#3a4356; margin-right:14px;}
+
+  h1.page-title{
+    font-family:var(--mono);
+    font-size:26px;
+    font-weight:700;
+    color:var(--text);
+    margin-bottom:4px;
+  }
+  h1.page-title .hash{color:var(--accent);}
+  .subtitle{color:var(--muted); font-size:14.5px; margin-bottom:28px;}
+
+  .card{
+    background:#11182a;
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:20px 24px;
+    margin-bottom:18px;
+  }
+  .card h3{
+    font-family:var(--mono);
+    font-size:15px;
+    color:var(--blue);
+    margin-bottom:4px;
+    font-weight:500;
+  }
+  .card .meta{
+    font-size:12.5px;
+    color:var(--muted);
+    margin-bottom:10px;
+    font-family:var(--mono);
+  }
+  .card ul{
+    list-style:none;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .card ul li{
+    font-size:14px;
+    line-height:1.55;
+    color:var(--text);
+    padding-left:18px;
+    position:relative;
+  }
+  .card ul li::before{
+    content:'>';
+    position:absolute;
+    left:0;
+    color:var(--accent-dim);
+    font-family:var(--mono);
+  }
+  p.body-text{
+    font-size:14.5px;
+    line-height:1.75;
+    color:var(--text);
+  }
+
+  .tag{
+    display:inline-flex;
+    align-items:center;
+    font-family:var(--mono);
+    font-size:11.5px;
+    padding:3px 9px;
+    border-radius:5px;
+    margin:3px 5px 3px 0;
+    border:1px solid var(--border);
+  }
+  .tag.lang{color:var(--accent); border-color:#1f3b27; background:#0f1f15;}
+  .tag.tool{color:var(--blue); border-color:#16304f; background:#0d1828;}
+  .tag.cloud{color:var(--amber); border-color:#3a2c0c; background:#1a1407;}
+  .tag.meth{color:var(--pink); border-color:#3a1f2c; background:#1a0f15;}
+
+  .skill-group{margin-bottom:18px;}
+  .skill-group .label{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:8px;
+    text-transform:lowercase;
+  }
+
+  .json-line{font-family:var(--mono); font-size:13.5px; line-height:1.9;}
+  .json-key{color:var(--blue);}
+  .json-str{color:var(--accent);}
+  .json-punc{color:var(--muted);}
+  .json-indent{padding-left:24px;}
+
+  .contact-grid{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .contact-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:14px 18px;
+    background:#11182a;
+    border:1px solid var(--border);
+    border-radius:8px;
+    text-decoration:none;
+    color:var(--text);
+    transition:border-color .15s, transform .15s;
+  }
+  .contact-row:hover{border-color:var(--accent-dim); transform:translateX(4px);}
+  .contact-row .ico{
+    font-family:var(--mono);
+    color:var(--accent);
+    font-size:14px;
+    width:24px;
+  }
+  .contact-row .label{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--muted);
+    display:block;
+  }
+  .contact-row .value{font-size:14.5px;}
+
+  .copy-btn{
+    margin-left:auto;
+    background:transparent;
+    border:1px solid var(--border);
+    color:var(--muted);
+    font-family:var(--mono);
+    font-size:11px;
+    padding:5px 10px;
+    border-radius:5px;
+    cursor:pointer;
+  }
+  .copy-btn:hover{border-color:var(--accent); color:var(--accent);}
+
+  .timeline{position:relative; padding-left:18px;}
+  .timeline::before{
+    content:'';
+    position:absolute; left:0; top:6px; bottom:6px;
+    width:1px; background:var(--border);
+  }
+  .timeline .t-item{position:relative; padding-bottom:24px;}
+  .timeline .t-item:last-child{padding-bottom:0;}
+  .timeline .t-dot{
+    position:absolute; left:-22px; top:4px;
+    width:9px; height:9px; border-radius:50%;
+    background:var(--accent); border:2px solid var(--bg);
+  }
+
+  /* ===== Status bar ===== */
+  .statusbar{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding:6px 16px;
+    background:#161b22;
+    border-top:1px solid var(--border);
+    font-family:var(--mono);
+    font-size:11.5px;
+    color:var(--muted);
+    flex-shrink:0;
+  }
+  .statusbar .branch{color:var(--accent);}
+  .statusbar .right{margin-left:auto; display:flex; gap:18px;}
+
+  /* ===== Mobile ===== */
+  .menu-toggle{
+    display:none;
+    background:transparent;
+    border:none;
+    color:var(--text);
+    font-size:20px;
+    cursor:pointer;
+    padding:0 6px;
+  }
+  @media (max-width:760px){
+    .menu-toggle{display:inline-flex;}
+    .sidebar{
+      position:fixed;
+      top:45px; bottom:30px; left:0;
+      z-index:20;
+      transform:translateX(-100%);
+      transition:transform .2s ease;
+      width:240px;
+    }
+    .sidebar.open{transform:translateX(0);}
+    .content{padding:22px 18px 50px;}
+    h1.page-title{font-size:21px;}
+    .statusbar .right{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="winbar">
+  <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú de archivos">☰</button>
+  <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+  <span class="filename">emanuel-gonzalez — cv-interactivo</span>
+  <div class="right"><span class="pulse"></span> disponible para nuevas oportunidades</div>
+</div>
+
+<div class="workspace">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">explorador</div>
+
+    <div class="tree-item folder">
+      <span class="icon">📂</span> EMANUEL-CV
+    </div>
+
+    <div class="tree-children">
+      <div class="tree-item" data-file="perfil">
+        <span class="icon">📄</span> perfil<span class="ext">.md</span>
+      </div>
+      <div class="tree-item" data-file="educacion">
+        <span class="icon">📄</span> educacion<span class="ext">.md</span>
+      </div>
+
+      <div class="folder-row" id="expFolder">
+        <span class="chev open" id="expChev">▶</span>
+        <span class="icon">📁</span> experiencia
+      </div>
+      <div class="tree-children" id="expChildren" style="padding-left:30px;">
+        <div class="tree-item" data-file="arduino">
+          <span class="icon">📄</span> alerta-arduino<span class="ext">.md</span>
+        </div>
+        <div class="tree-item" data-file="nlp">
+          <span class="icon">📄</span> nlp-sagemaker<span class="ext">.md</span>
+        </div>
+        <div class="tree-item" data-file="cine">
+          <span class="icon">📄</span> gestion-cine<span class="ext">.md</span>
+        </div>
+        <div class="tree-item" data-file="restaurantes">
+          <span class="icon">📄</span> db-restaurantes<span class="ext">.md</span>
+        </div>
+      </div>
+
+      <div class="tree-item" data-file="voluntariado">
+        <span class="icon">📄</span> voluntariado<span class="ext">.md</span>
+      </div>
+      <div class="tree-item" data-file="competencias">
+        <span class="icon">📄</span> competencias<span class="ext">.json</span>
+      </div>
+      <div class="tree-item" data-file="contacto">
+        <span class="icon">📄</span> contacto<span class="ext">.md</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="editor">
+    <div class="tabbar" id="tabbar"></div>
+    <div class="content" id="content"></div>
+  </main>
+
+</div>
+
+<div class="statusbar">
+  <span><span class="branch">⎇ main</span></span>
+  <span>UTF-8</span>
+  <span id="statusFile">perfil.md</span>
+  <span class="right">
+    <span>Ln 1, Col 1</span>
+    <span>Software Engineering</span>
+  </span>
+</div>
+
+<script>
+const pages = {
+  perfil: {
+    title: "perfil.md",
+    render: () => `
+      <div class="lead-line"><span class="n">01</span># Perfil profesional</div>
+      <h1 class="page-title"><span class="hash">#</span> Emanuel Josué González Carrera</h1>
+      <p class="subtitle">Estudiante de Ingeniería de Software — Universidad Tecnológica de Panamá</p>
+      <div class="card">
+        <p class="body-text">Estudiante de cuarto año de Licenciatura en Ingeniería de Software, con formación en desarrollo de software, aplicaciones móviles y tecnologías web. Cuento con experiencia en proyectos académicos y de labor social, aplicando principios de programación, resolución de problemas, análisis de requerimientos y trabajo colaborativo.</p>
+        <br>
+        <p class="body-text">Poseo habilidades en desarrollo de sistemas, manejo de herramientas tecnológicas y aprendizaje continuo, con interés en seguir fortaleciendo mis competencias técnicas. Busco una oportunidad para adquirir experiencia profesional, aportar valor en proyectos tecnológicos y continuar mi crecimiento en el área de desarrollo de software.</p>
+      </div>
+      <div class="card">
+        <h3>🏆 reconocimientos</h3>
+        <div class="meta">Universidad Tecnológica de Panamá · Feb. 2023 — actualidad</div>
+        <ul><li>Certificación de Mención Honorífica</li></ul>
+      </div>
+      <div class="card">
+        <h3>🗣 idiomas</h3>
+        <ul>
+          <li>Español — Nativo</li>
+          <li>Inglés — Básico (A2)</li>
+        </ul>
+      </div>
+    `
+  },
+  educacion: {
+    title: "educacion.md",
+    render: () => `
+      <div class="lead-line"><span class="n">02</span># Formación académica</div>
+      <h1 class="page-title"><span class="hash">#</span> Educación</h1>
+      <p class="subtitle">Trayectoria académica y certificaciones complementarias</p>
+      <div class="timeline">
+        <div class="t-item">
+          <span class="t-dot"></span>
+          <div class="card" style="margin-bottom:0;">
+            <h3>Licenciatura en Ingeniería de Software</h3>
+            <div class="meta">Universidad Tecnológica de Panamá (FISC) · Mar. 2023 — actualidad</div>
+            <p class="body-text" style="margin-bottom:10px;">Cursando primer semestre de cuarto año. Asignaturas relevantes agrupadas por área:</p>
+            <ul>
+              <li><strong style="color:var(--text); font-weight:600;">Programación y algoritmos:</strong> Principios de Programación, Programación de Software I y II, Análisis y Diseño de Algoritmos</li>
+              <li><strong style="color:var(--text); font-weight:600;">Diseño y arquitectura:</strong> Arquitectura y Diseño del Software, Ingeniería de Requisitos, Interacción Humano-Computador (HCI)</li>
+              <li><strong style="color:var(--text); font-weight:600;">Bases de datos:</strong> Implementación de Bases de Datos I y II, Estructura y Representación de Datos</li>
+              <li><strong style="color:var(--text); font-weight:600;">Gestión y calidad:</strong> Gerencia de Proyectos de Desarrollo de Software, Calidad de Software, métricas y procesos de mejora continua</li>
+              <li><strong style="color:var(--text); font-weight:600;">Ingeniería de requisitos:</strong> Análisis de necesidades del usuario para casos de prueba precisos</li>
+            </ul>
+          </div>
+        </div>
+        <div class="t-item">
+          <span class="t-dot" style="background:var(--blue);"></span>
+          <div class="card" style="margin-bottom:0;">
+            <h3 style="color:var(--blue);">Bachiller Industrial en Tecnología e Informática</h3>
+            <div class="meta">Instituto Profesional y Técnico Jeptha B. Duncan G. · 2019 — 2022</div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:18px;">
+        <h3>📚 formación adicional</h3>
+        <ul>
+          <li>AWS Academy — Machine Learning for Natural Language Processing &amp; Computer Networks (Huawei Talent)</li>
+          <li>Computer Networks Course — Programa de capacitación Perú (Huawei Talent)</li>
+          <li>PCPE — Certified Entry-Level Python Programmer, CISCO (en curso)</li>
+          <li>English for IT, CISCO (en curso)</li>
+        </ul>
+      </div>
+    `
+  },
+  arduino: {
+    title: "alerta-arduino.md",
+    render: () => `
+      <div class="lead-line"><span class="n">03</span># experiencia / proyecto académico</div>
+      <h1 class="page-title"><span class="hash">#</span> Sistema de alerta de proximidad con Arduino</h1>
+      <p class="subtitle">Ciudad de Panamá · Proyecto académico</p>
+      <div class="card">
+        <ul>
+          <li>Diseño e implementación de un sistema de asistencia para personas con discapacidad visual, usando Arduino y sensores ultrasónicos para detección de obstáculos.</li>
+          <li>Desarrollo de lógica de control para generar alertas auditivas progresivas mediante buzzer, mejorando la percepción de proximidad en tiempo real.</li>
+          <li>Aplicación de principios de electrónica y programación embebida en la creación de soluciones accesibles.</li>
+          <li>Orientado a mejorar la autonomía y seguridad en la movilidad de los usuarios.</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <div class="label">// tecnologías</div>
+        <span class="tag tool">Arduino</span><span class="tag tool">Sensores ultrasónicos</span><span class="tag lang">C</span>
+      </div>
+    `
+  },
+  nlp: {
+    title: "nlp-sagemaker.md",
+    render: () => `
+      <div class="lead-line"><span class="n">04</span># experiencia / proyecto académico</div>
+      <h1 class="page-title"><span class="hash">#</span> Pipeline de NLP con AWS SageMaker</h1>
+      <p class="subtitle">Coautor y desarrollador backend · Universidad Tecnológica de Panamá · Sep — Dic 2025</p>
+      <div class="card">
+        <ul>
+          <li>Diseño e implementación de un pipeline de NLP inspirado en compiladores (lexer → parser → motor semántico) usando AWS SageMaker, Comprehend y Bedrock.</li>
+          <li>Integración de modelos de LLM (Claude v2, Llama 2) para generación de texto, análisis semántico y validación de contenido multilingüe.</li>
+          <li>Desarrollo de módulos de extracción de texto (web scraping, OCR con Textract), preprocesamiento, vectorización (BERT, Word2Vec) y análisis de sentimientos.</li>
+          <li>Documentación técnica del sistema y diseño de casos de prueba para validar rendimiento y robustez en escenarios de error.</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <div class="label">// stack</div>
+        <span class="tag cloud">AWS SageMaker</span><span class="tag cloud">Comprehend</span><span class="tag cloud">Bedrock</span><span class="tag cloud">Textract</span>
+        <span class="tag tool">BERT</span><span class="tag tool">Word2Vec</span><span class="tag lang">Python</span>
+      </div>
+    `
+  },
+  cine: {
+    title: "gestion-cine.md",
+    render: () => `
+      <div class="lead-line"><span class="n">05</span># experiencia / proyecto académico</div>
+      <h1 class="page-title"><span class="hash">#</span> Sistema web de gestión de cine</h1>
+      <p class="subtitle">Coautor y desarrollador full stack · Ciudad de Panamá · Jun — Jul 2025</p>
+      <div class="card">
+        <ul>
+          <li>Documentación técnica del sistema mediante diagramas UML para asegurar mantenimiento futuro libre de errores.</li>
+          <li>Ejecución de pruebas de interfaz responsiva y sistemas de reserva en tiempo real para detectar fallas en la lógica de selección de asientos.</li>
+          <li>Desarrollo de interfaz responsive para programación de horarios, venta de boletos y administración de salas con HTML/CSS.</li>
+          <li>Implementación de un sistema de reservas en tiempo real con selección de asientos mediante JSP y sesiones interactivas.</li>
+          <li>Integración de una base de datos MySQL con más de 10 tablas normalizadas, documentada con diagramas UML.</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <div class="label">// stack</div>
+        <span class="tag lang">HTML/CSS</span><span class="tag lang">JSP</span><span class="tag tool">MySQL</span><span class="tag meth">UML</span>
+      </div>
+    `
+  },
+  restaurantes: {
+    title: "db-restaurantes.md",
+    render: () => `
+      <div class="lead-line"><span class="n">06</span># experiencia / proyecto académico</div>
+      <h1 class="page-title"><span class="hash">#</span> Diseño de BD para cadena de restaurantes</h1>
+      <p class="subtitle">Diseñador de bases de datos · Ciudad de Panamá · Jun — Jul 2025</p>
+      <div class="card">
+        <ul>
+          <li>Diseño de un esquema relacional para 6 sucursales, gestionando inventario, proveedores y personal.</li>
+          <li>Normalización de la estructura a la Tercera Forma Normal (3FN) en más de 15 tablas, eliminando redundancias.</li>
+          <li>Creación de procedimientos almacenados para informes de ventas diarias y control de inventario.</li>
+          <li>Generación de un diagrama ER con cardinalidades precisas.</li>
+        </ul>
+      </div>
+      <div class="skill-group">
+        <div class="label">// stack</div>
+        <span class="tag tool">MySQL</span><span class="tag meth">3FN</span><span class="tag meth">Diagrama ER</span>
+      </div>
+    `
+  },
+  voluntariado: {
+    title: "voluntariado.md",
+    render: () => `
+      <div class="lead-line"><span class="n">07</span># labor social</div>
+      <h1 class="page-title"><span class="hash">#</span> Voluntariado</h1>
+      <p class="subtitle">Compromiso con el impacto social y la educación</p>
+      <div class="card">
+        <h3>Impulsa Panamá</h3>
+        <div class="meta">AIESEC en Panamá — Área de Innovación Social · 1–4 mar. 2024</div>
+        <ul>
+          <li>Desarrollo de propuestas innovadoras para abordar desafíos sociales a nivel local.</li>
+          <li>Colaboración en equipos para la generación de ideas y presentación de soluciones.</li>
+          <li>Participación en dinámicas de liderazgo y emprendimiento social.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Pilando Ando</h3>
+        <div class="meta">Fundación Ayudinga — Canal de Panamá — SSA Marine MIT · 2025</div>
+        <ul>
+          <li>Tutor en acompañamiento académico a estudiantes de primaria, premedia y media.</li>
+          <li>Apoyo en explicación de contenidos y resolución de dudas, especialmente en matemáticas y comprensión lectora.</li>
+          <li>Desarrollo de habilidades de comunicación efectiva y adaptación de contenidos según el nivel del estudiante.</li>
+          <li>Fomento de un ambiente de aprendizaje inclusivo y motivador.</li>
+        </ul>
+      </div>
+    `
+  },
+  competencias: {
+    title: "competencias.json",
+    render: () => `
+      <div class="lead-line"><span class="n">08</span># competencias técnicas</div>
+      <h1 class="page-title"><span class="hash">#</span> Competencias</h1>
+      <p class="subtitle">Lenguajes, herramientas y metodologías</p>
+      <div class="card">
+        <div class="json-line">
+          <span class="json-punc">{</span><br>
+          <span class="json-indent"><span class="json-key">"lenguajes"</span><span class="json-punc">:</span> <span class="json-str">["Python", "Java", "C", "SQL", "HTML/CSS", "PHP"]</span><span class="json-punc">,</span></span><br>
+          <span class="json-indent"><span class="json-key">"qa_testing"</span><span class="json-punc">:</span> <span class="json-str">["Casos de uso", "Validación de errores", "Ágil/Scrum"]</span><span class="json-punc">,</span></span><br>
+          <span class="json-indent"><span class="json-key">"cloud_ml"</span><span class="json-punc">:</span> <span class="json-str">["AWS SageMaker", "Comprehend", "Bedrock", "Textract", "Transcribe", "Lambda", "S3"]</span><span class="json-punc">,</span></span><br>
+          <span class="json-indent"><span class="json-key">"nlp_ml"</span><span class="json-punc">:</span> <span class="json-str">["LDA", "NTM", "Sentiment Analysis", "Topic Modeling", "LLMs"]</span><span class="json-punc">,</span></span><br>
+          <span class="json-indent"><span class="json-key">"bases_de_datos"</span><span class="json-punc">:</span> <span class="json-str">["MySQL", "Diseño normalizado", "Procedimientos almacenados"]</span><span class="json-punc">,</span></span><br>
+          <span class="json-indent"><span class="json-key">"herramientas"</span><span class="json-punc">:</span> <span class="json-str">["Git", "VS Code", "Eclipse", "JupyterLab", "MS Office", "Jira/Trello"]</span><span class="json-punc">,</span></span><br>
+          <span class="json-indent"><span class="json-key">"metodologias"</span><span class="json-punc">:</span> <span class="json-str">["Ágil/Scrum", "CI/CD", "Pipelines de datos", "Versionamiento", "Full stack"]</span></span><br>
+          <span class="json-punc">}</span>
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="label">// vista rápida</div>
+        <span class="tag lang">Python</span><span class="tag lang">Java</span><span class="tag lang">C</span><span class="tag lang">SQL</span><span class="tag lang">PHP</span>
+        <span class="tag cloud">AWS</span><span class="tag cloud">Bedrock</span><span class="tag cloud">SageMaker</span>
+        <span class="tag tool">Git</span><span class="tag tool">MySQL</span><span class="tag tool">JupyterLab</span>
+        <span class="tag meth">Scrum</span><span class="tag meth">CI/CD</span>
+      </div>
+    `
+  },
+  contacto: {
+    title: "contacto.md",
+    render: () => `
+      <div class="lead-line"><span class="n">09</span># contacto</div>
+      <h1 class="page-title"><span class="hash">#</span> Hablemos</h1>
+      <p class="subtitle">Disponible para prácticas, proyectos y oportunidades de desarrollo de software</p>
+      <div class="contact-grid">
+        <a class="contact-row" href="mailto:emanuelgonzalez507@gmail.com">
+          <span class="ico">@</span>
+          <div><span class="label">email</span><span class="value">emanuelgonzalez507@gmail.com</span></div>
+          <button class="copy-btn" onclick="copyText(event, 'emanuelgonzalez507@gmail.com')">copiar</button>
+        </a>
+        <a class="contact-row" href="tel:+50765143063">
+          <span class="ico">#</span>
+          <div><span class="label">teléfono</span><span class="value">+507 6514-3063</span></div>
+          <button class="copy-btn" onclick="copyText(event, '+50765143063')">copiar</button>
+        </a>
+        <a class="contact-row" href="#" onclick="alert('Agrega aquí el enlace real a tu perfil de LinkedIn'); return false;">
+          <span class="ico">in</span>
+          <div><span class="label">linkedin</span><span class="value">Ver perfil profesional</span></div>
+        </a>
+        <a class="contact-row" href="#" onclick="alert('Agrega aquí el enlace real a tu perfil de GitHub'); return false;">
+          <span class="ico">&lt;/&gt;</span>
+          <div><span class="label">github</span><span class="value">Ver repositorios</span></div>
+        </a>
+      </div>
+    `
+  }
+};
+
+let openTabs = ["perfil"];
+let activeTab = "perfil";
+
+function renderTabs(){
+  const bar = document.getElementById('tabbar');
+  bar.innerHTML = openTabs.map(key => {
+    const p = pages[key];
+    const isActive = key === activeTab ? 'active' : '';
+    return `<div class="tab ${isActive}" data-tab="${key}">
+              <span>${p.title}</span>
+              <span class="close" data-close="${key}">×</span>
+            </div>`;
+  }).join('');
+
+  bar.querySelectorAll('.tab').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if(e.target.dataset.close) return;
+      setActive(el.dataset.tab);
+    });
+  });
+  bar.querySelectorAll('[data-close]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeTab(el.dataset.close);
+    });
+  });
+}
+
+function renderContent(){
+  document.getElementById('content').innerHTML = pages[activeTab].render();
+  document.getElementById('statusFile').textContent = pages[activeTab].title;
+  document.querySelectorAll('.tree-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.file === activeTab);
+  });
+  document.getElementById('content').scrollTop = 0;
+}
+
+function setActive(key){
+  activeTab = key;
+  if(!openTabs.includes(key)) openTabs.push(key);
+  renderTabs();
+  renderContent();
+  if(window.innerWidth <= 760){
+    document.getElementById('sidebar').classList.remove('open');
+  }
+}
+
+function closeTab(key){
+  const idx = openTabs.indexOf(key);
+  if(idx > -1) openTabs.splice(idx, 1);
+  if(openTabs.length === 0) openTabs.push('perfil');
+  if(activeTab === key) activeTab = openTabs[openTabs.length - 1];
+  renderTabs();
+  renderContent();
+}
+
+function copyText(e, text){
+  e.preventDefault();
+  e.stopPropagation();
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = e.target;
+    const original = btn.textContent;
+    btn.textContent = 'copiado';
+    setTimeout(() => btn.textContent = original, 1200);
+  });
+}
+
+document.querySelectorAll('.tree-item[data-file]').forEach(el => {
+  el.addEventListener('click', () => setActive(el.dataset.file));
+});
+
+document.getElementById('expFolder').addEventListener('click', () => {
+  const children = document.getElementById('expChildren');
+  const chev = document.getElementById('expChev');
+  const isOpen = children.style.display !== 'none';
+  children.style.display = isOpen ? 'none' : 'block';
+  chev.classList.toggle('open', !isOpen);
+});
+
+document.getElementById('menuToggle').addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('open');
+});
+
+renderTabs();
+renderContent();
+</script>
+
+</body>
+</html>
